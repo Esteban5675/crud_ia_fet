@@ -182,6 +182,11 @@
 
   <div class="notificaciones" id="notificaciones" role="status" aria-live="polite" aria-atomic="false"></div>
 
+  <!-- Scripts clásicos (no módulos) para que funcione abriendo el archivo sin servidor.
+       El orden importa: main.js usa los objetos definidos en los otros tres. -->
   <script src="js/almacenamiento.js"></script>
+  <script src="js/proyectos.js"></script>
+  <script src="js/interfaz.js"></script>
+  <script src="js/main.js"></script>
 </body>
 </html>
