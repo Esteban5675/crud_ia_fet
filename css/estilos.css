@@ -427,6 +427,9 @@ textarea {
 
 .tabla-contenedor {
   overflow-x: auto;
+  /* La tabla decide si se ve como tabla o como tarjetas según el espacio que
+     tiene ella misma (container query), no según el ancho de la pantalla. */
+  container-type: inline-size;
 }
 
 .tabla {
@@ -460,10 +463,6 @@ textarea {
 .tabla__numero {
   text-align: right !important;
   font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-}
-
-.tabla__fecha {
   white-space: nowrap;
 }
 
@@ -649,9 +648,11 @@ textarea {
   }
 }
 
-/* ---------- Tabla en móvil: cada fila se vuelve una tarjeta ---------- */
+/* ---------- Tabla angosta: cada fila se vuelve una tarjeta ----------
+   Pasa en el celular y también en escritorio cuando el formulario deja poco
+   espacio: así la columna de acciones nunca queda cortada. */
 
-@media (max-width: 719px) {
+@container (width < 46rem) {
   .tabla thead {
     position: absolute;
     width: 1px;
@@ -705,6 +706,37 @@ textarea {
 
   .tabla td.tabla__celda-acciones .tabla__acciones {
     width: 100%;
+  }
+}
+
+/* ---------- Tabla ancha ----------
+   Son 7 columnas: se reduce el relleno lateral y los botones Editar / Eliminar
+   se apilan para que todo quepa sin desplazamiento horizontal. */
+
+@container (width >= 46rem) {
+  .tabla th,
+  .tabla td {
+    padding-left: var(--espacio-2);
+    padding-right: var(--espacio-2);
+  }
+
+  .tabla th:first-child,
+  .tabla td:first-child {
+    padding-left: var(--espacio-3);
+  }
+
+  .tabla th:last-child,
+  .tabla td:last-child {
+    padding-right: var(--espacio-3);
+  }
+
+  .tabla__proyecto {
+    min-width: 9rem;
+  }
+
+  .tabla__acciones {
+    flex-direction: column;
+    align-items: stretch;
   }
 }
 

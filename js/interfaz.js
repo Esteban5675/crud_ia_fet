@@ -148,7 +148,7 @@ const Interfaz = {
 
   /** El nombre del proyecto va con su descripción debajo, si tiene. */
   crearCeldaProyecto(proyecto) {
-    const celda = this.crearCelda('Proyecto', '');
+    const celda = this.crearCelda('Proyecto', '', 'tabla__proyecto');
     const contenido = document.createElement('div');
     const nombre = document.createElement('strong');
     nombre.textContent = proyecto.proyecto;
