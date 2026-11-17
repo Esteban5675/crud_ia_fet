@@ -129,6 +129,13 @@ Usé un asistente de IA (Claude Code) como apoyo para generar la base del proyec
 - **Para qué:** cumplir con los requisitos del repositorio de la entrega.
 - **Qué cambió en el código:** se tomaron las 5 capturas de `docs/capturas/` con la app corriendo (listado con datos de ejemplo, validación al crear, modo edición, diálogo de eliminación y vista móvil), se completó este registro de prompts, se agregó el enlace al repositorio y se hizo `push` a GitHub. El código de la app no cambió.
 
+### Prompt 4
+
+- **Texto del prompt (resumido pero fiel):** "Sí, elimina `promts.md` del repositorio."
+- **Qué se pidió:** quitar del repositorio el archivo `promts.md`, que era un borrador de notas.
+- **Para qué:** que la lista oficial de prompts esté en un solo lugar (este README) y el repositorio quede limpio.
+- **Qué cambió en el código:** se eliminó `promts.md` (commit "Eliminar promts.md (los prompts están en el README)") y se registró este prompt. El código de la app no cambió.
+
 <!--
 Plantilla para los siguientes prompts (copiar y llenar):
 
