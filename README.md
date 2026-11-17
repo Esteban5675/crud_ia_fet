@@ -4,6 +4,10 @@
 
 Aplicación web para que un desarrollador independiente lleve el control de los proyectos que hace para sus clientes: quién es el cliente, qué se está construyendo, con qué tecnología, en qué estado va, cuánto vale y cuándo se entrega. Permite crear, ver, editar y eliminar proyectos (CRUD), buscar y filtrar, y ver un resumen rápido. Los datos se guardan en el navegador con `localStorage`, así que no necesita servidor ni base de datos.
 
+**Repositorio:** https://github.com/Esteban5675/crud_ia_fet
+
+![Vista general](docs/capturas/01-listado.png)
+
 ## Tecnologías utilizadas
 
 - **HTML5** semántico (`<form>`, `<table>`, `<dialog>`, `aria-*`).
@@ -110,6 +114,20 @@ Usé un asistente de IA (Claude Code) como apoyo para generar la base del proyec
 - **Qué se pidió:** construir la aplicación completa desde cero, con su repositorio Git, documentación y pruebas.
 - **Para qué:** tener una base funcional y bien organizada del CRUD, con historial de commits que muestre cómo se fue armando paso a paso.
 - **Qué cambió en el código:** se crearon todos los archivos del proyecto. Commits: "Estructura base HTML y CSS", "Create: formulario con validación", "Read: listado en tabla", "Update: edición de registros", "Delete: confirmación con dialog", "Búsqueda, filtro y ordenamiento", "Datos de ejemplo y borrar todo" y "README con documentación y registro de prompts". Se verificó la sintaxis con `node --check` y se probó la lógica y el flujo completo con scripts temporales (Node + jsdom) que se borraron al terminar.
+
+### Prompt 2
+
+- **Texto del prompt (resumido pero fiel):** "En el diálogo de confirmación, el recuadro con el nombre del proyecto tiene un borde rojo a la izquierda que se ve muy agresivo; déjalo con un borde neutro."
+- **Qué se pidió:** un ajuste visual (refactor de estilos) del diálogo de eliminación.
+- **Para qué:** que el detalle del proyecto se lea como información y no como un error; el rojo queda solo para el botón **Eliminar**, que es la acción peligrosa.
+- **Qué cambió en el código:** en `css/estilos.css`, `.dialogo__detalle` pasó de `border-left: 4px solid var(--color-peligro)` a `border: 1px solid var(--color-borde)`. Commit: "Diálogo: borde neutro en el detalle del proyecto".
+
+### Prompt 3
+
+- **Texto del prompt (resumido pero fiel):** "Encárgate de la parte 2 de la entrega (repositorio de GitHub): que el README tenga nombre del proyecto, descripción breve, tecnologías utilizadas, instrucciones para ejecutar, capturas de pantalla y la lista de prompts con su explicación, y súbelo a https://github.com/Esteban5675/crud_ia_fet.git."
+- **Qué se pidió:** dejar el repositorio listo para entregar y publicarlo en GitHub.
+- **Para qué:** cumplir con los requisitos del repositorio de la entrega.
+- **Qué cambió en el código:** se tomaron las 5 capturas de `docs/capturas/` con la app corriendo (listado con datos de ejemplo, validación al crear, modo edición, diálogo de eliminación y vista móvil), se completó este registro de prompts, se agregó el enlace al repositorio y se hizo `push` a GitHub. El código de la app no cambió.
 
 <!--
 Plantilla para los siguientes prompts (copiar y llenar):
