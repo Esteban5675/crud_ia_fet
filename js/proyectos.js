@@ -147,5 +147,35 @@ const Proyectos = {
     };
     this.lista.push(proyecto);
     return { ok: true, proyecto: { ...proyecto } };
+  },
+
+  /**
+   * Reemplaza los datos de un proyecto existente.
+   * El id y creadoEn se conservan; solo cambia actualizadoEn.
+   * @returns {{ ok: boolean, proyecto?: Object, errores?: Object, noEncontrado?: boolean }}
+   */
+  actualizar(id, datosFormulario) {
+    const indice = this.lista.findIndex((p) => p.id === id);
+    if (indice === -1) {
+      return { ok: false, noEncontrado: true, errores: {} };
+    }
+
+    const datos = this.normalizar(datosFormulario);
+    const errores = this.validar(datos);
+    if (Object.keys(errores).length > 0) {
+      return { ok: false, errores };
+    }
+
+    const original = this.lista[indice];
+    const actualizado = {
+      ...original,
+      ...datos,
+      valor: Math.round(datos.valor),
+      id: original.id,
+      creadoEn: original.creadoEn,
+      actualizadoEn: new Date().toISOString()
+    };
+    this.lista[indice] = actualizado;
+    return { ok: true, proyecto: { ...actualizado } };
   }
 };

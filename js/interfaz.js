@@ -207,6 +207,39 @@ const Interfaz = {
     this.actualizarContadorDescripcion();
   },
 
+  /** Pone los datos de un proyecto en el formulario para editarlo. */
+  llenarFormulario(proyecto) {
+    const formulario = this.elementos.formulario;
+    this.limpiarErrores();
+    this.CAMPOS.forEach((campo) => {
+      formulario.elements[campo].value = proyecto[campo] ?? '';
+    });
+    this.actualizarContadorDescripcion();
+  },
+
+  /** Cambia títulos y botones para que quede claro que se está editando y no creando. */
+  activarModoEdicion(proyecto) {
+    this.llenarFormulario(proyecto);
+    this.elementos.tituloFormulario.textContent = 'Editar proyecto';
+    this.elementos.botonGuardar.textContent = 'Guardar cambios';
+    this.elementos.botonCancelar.hidden = false;
+    this.elementos.panelFormulario.classList.add('panel--editando');
+    // En móvil el formulario queda arriba de la tabla, así que lo traigo a la vista.
+    // Si la persona pidió menos movimiento en su sistema, el salto es inmediato.
+    const menosMovimiento = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    this.elementos.panelFormulario.scrollIntoView({ behavior: menosMovimiento ? 'auto' : 'smooth', block: 'start' });
+    // preventScroll evita que el foco corte a la mitad el desplazamiento suave
+    this.elementos.formulario.elements.cliente.focus({ preventScroll: true });
+  },
+
+  desactivarModoEdicion() {
+    this.limpiarFormulario();
+    this.elementos.tituloFormulario.textContent = 'Nuevo proyecto';
+    this.elementos.botonGuardar.textContent = 'Agregar proyecto';
+    this.elementos.botonCancelar.hidden = true;
+    this.elementos.panelFormulario.classList.remove('panel--editando');
+  },
+
   enfocarPrimerCampo() {
     this.elementos.formulario.elements.cliente.focus();
   },
