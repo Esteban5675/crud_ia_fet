@@ -27,6 +27,18 @@ const Proyectos = {
     return this.lista.map((p) => ({ ...p }));
   },
 
+  /** Busca un proyecto por id. Devuelve una copia o null si no existe. */
+  obtener(id) {
+    const proyecto = this.lista.find((p) => p.id === id);
+    return proyecto ? { ...proyecto } : null;
+  },
+
+  /** Lista para mostrar en la tabla, por defecto con la entrega más próxima primero. */
+  listar() {
+    // Las fechas AAAA-MM-DD se pueden comparar como texto y quedan en orden cronológico
+    return this.obtenerTodos().sort((a, b) => a.fechaEntrega.localeCompare(b.fechaEntrega));
+  },
+
   /**
    * Id corto y suficientemente único para uso local:
    * el tiempo en base 36 más un pedazo aleatorio por si se crean dos en el mismo milisegundo.

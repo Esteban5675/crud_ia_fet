@@ -74,6 +74,11 @@ body {
   background: var(--color-fondo);
 }
 
+/* Clases como .boton definen display y le ganarían al atributo hidden; esto lo evita */
+[hidden] {
+  display: none !important;
+}
+
 h1,
 h2,
 p {

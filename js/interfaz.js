@@ -9,6 +9,23 @@ const Interfaz = {
   CAMPOS: ['cliente', 'proyecto', 'tecnologia', 'estado', 'valor', 'fechaEntrega', 'descripcion'],
   DURACION_TOAST: 4000,
 
+  // Clase CSS de la etiqueta de cada estado
+  CLASES_ESTADO: {
+    'Pendiente': 'etiqueta--pendiente',
+    'En desarrollo': 'etiqueta--desarrollo',
+    'En revisión': 'etiqueta--revision',
+    'Entregado': 'etiqueta--entregado'
+  },
+
+  // Los formateadores se crean una sola vez; crearlos en cada fila sería desperdicio
+  formatoMoneda: new Intl.NumberFormat('es-CO', {
+    style: 'currency',
+    currency: 'COP',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0
+  }),
+  formatoFecha: new Intl.DateTimeFormat('es-CO', { day: 'numeric', month: 'short', year: 'numeric' }),
+
   elementos: {},
 
   /** Busca una sola vez los elementos que se usan seguido. */
@@ -21,8 +38,155 @@ const Interfaz = {
       botonGuardar: porId('boton-guardar'),
       botonCancelar: porId('boton-cancelar'),
       contadorDescripcion: porId('contador-descripcion'),
+      tabla: porId('tabla-proyectos'),
+      cuerpoTabla: porId('cuerpo-tabla'),
+      tituloListado: porId('titulo-listado'),
+      contadorResultados: porId('contador-resultados'),
+      estadoVacio: porId('estado-vacio'),
+      estadoVacioTitulo: porId('estado-vacio-titulo'),
+      estadoVacioTexto: porId('estado-vacio-texto'),
       notificaciones: porId('notificaciones')
     };
+  },
+
+  /* ---------------- Formato ---------------- */
+
+  formatearValor(valor) {
+    return this.formatoMoneda.format(valor);
+  },
+
+  /**
+   * new Date('2025-03-10') se interpreta como medianoche UTC, y en Colombia (UTC-5)
+   * eso termina mostrando el 9 de marzo. Armando la fecha con sus partes queda en hora local.
+   */
+  formatearFecha(textoFecha) {
+    const [anio, mes, dia] = textoFecha.split('-').map(Number);
+    return this.formatoFecha.format(new Date(anio, mes - 1, dia));
+  },
+
+  /* ---------------- Tabla ---------------- */
+
+  /**
+   * Pinta la tabla completa con la lista recibida.
+   * @param {Array} proyectos lista ya filtrada y ordenada
+   * @param {Object} opciones idEnEdicion para resaltar la fila, total para el contador
+   */
+  renderTabla(proyectos, { idEnEdicion = null, total = proyectos.length } = {}) {
+    const filas = proyectos.map((proyecto) => this.crearFila(proyecto, proyecto.id === idEnEdicion));
+    this.elementos.cuerpoTabla.replaceChildren(...filas);
+
+    const hayResultados = proyectos.length > 0;
+    this.elementos.tabla.hidden = !hayResultados;
+    this.elementos.estadoVacio.hidden = hayResultados;
+    if (!hayResultados) {
+      this.mostrarEstadoVacio(total > 0);
+    }
+    this.actualizarContadorResultados(proyectos.length, total);
+  },
+
+  crearFila(proyecto, enEdicion) {
+    const fila = document.createElement('tr');
+    fila.dataset.id = proyecto.id;
+    if (enEdicion) {
+      fila.classList.add('fila--editando');
+      fila.setAttribute('aria-current', 'true');
+    }
+
+    fila.append(
+      this.crearCelda('Cliente', proyecto.cliente),
+      this.crearCeldaProyecto(proyecto),
+      this.crearCelda('Tecnología', proyecto.tecnologia),
+      this.crearCeldaEstado(proyecto.estado),
+      this.crearCelda('Valor', this.formatearValor(proyecto.valor), 'tabla__numero'),
+      this.crearCelda('Entrega', this.formatearFecha(proyecto.fechaEntrega), 'tabla__fecha'),
+      this.crearCeldaAcciones(proyecto)
+    );
+    return fila;
+  },
+
+  /** data-etiqueta lo usa el CSS para mostrar el nombre del dato cuando la tabla se vuelve tarjeta en móvil. */
+  crearCelda(etiqueta, texto, clase = '') {
+    const celda = document.createElement('td');
+    celda.dataset.etiqueta = etiqueta;
+    celda.textContent = texto;
+    if (clase) {
+      celda.className = clase;
+    }
+    return celda;
+  },
+
+  /** El nombre del proyecto va con su descripción debajo, si tiene. */
+  crearCeldaProyecto(proyecto) {
+    const celda = this.crearCelda('Proyecto', '');
+    const contenido = document.createElement('div');
+    const nombre = document.createElement('strong');
+    nombre.textContent = proyecto.proyecto;
+    contenido.appendChild(nombre);
+
+    if (proyecto.descripcion) {
+      const descripcion = document.createElement('span');
+      descripcion.className = 'tabla__secundario';
+      descripcion.textContent = proyecto.descripcion;
+      contenido.appendChild(descripcion);
+    }
+    celda.appendChild(contenido);
+    return celda;
+  },
+
+  crearCeldaEstado(estado) {
+    const celda = this.crearCelda('Estado', '');
+    const etiqueta = document.createElement('span');
+    etiqueta.className = `etiqueta ${this.CLASES_ESTADO[estado] || 'etiqueta--pendiente'}`;
+    etiqueta.textContent = estado;
+    celda.appendChild(etiqueta);
+    return celda;
+  },
+
+  crearCeldaAcciones(proyecto) {
+    const celda = document.createElement('td');
+    celda.className = 'tabla__celda-acciones';
+    const contenedor = document.createElement('div');
+    contenedor.className = 'tabla__acciones';
+    contenedor.append(
+      this.crearBotonAccion('Editar', 'editar', proyecto, 'boton--secundario'),
+      this.crearBotonAccion('Eliminar', 'eliminar', proyecto, 'boton--peligro-suave')
+    );
+    celda.appendChild(contenedor);
+    return celda;
+  },
+
+  /**
+   * Los botones solo dicen "Editar" o "Eliminar", pero con aria-label el lector
+   * de pantalla sabe de qué proyecto se trata. La acción se lee en main.js
+   * por delegación de eventos usando data-accion y data-id.
+   */
+  crearBotonAccion(texto, accion, proyecto, clase) {
+    const boton = document.createElement('button');
+    boton.type = 'button';
+    boton.className = `boton boton--pequeno ${clase}`;
+    boton.textContent = texto;
+    boton.dataset.accion = accion;
+    boton.dataset.id = proyecto.id;
+    boton.setAttribute('aria-label', `${texto} ${proyecto.proyecto} de ${proyecto.cliente}`);
+    return boton;
+  },
+
+  /** Mensaje distinto si no hay nada guardado o si es la búsqueda la que no encontró nada. */
+  mostrarEstadoVacio(hayProyectosOcultos) {
+    if (hayProyectosOcultos) {
+      this.elementos.estadoVacioTitulo.textContent = 'Ningún proyecto coincide con la búsqueda.';
+      this.elementos.estadoVacioTexto.textContent = 'Prueba con otra palabra o cambia el filtro de estado.';
+    } else {
+      this.elementos.estadoVacioTitulo.textContent = 'Todavía no tienes proyectos registrados.';
+      this.elementos.estadoVacioTexto.textContent = 'Agrega el primero con el formulario o usa "Cargar datos de ejemplo" para ver cómo funciona.';
+    }
+  },
+
+  actualizarContadorResultados(visibles, total) {
+    const texto = visibles === total
+      ? `${total} ${total === 1 ? 'proyecto' : 'proyectos'}`
+      : `Mostrando ${visibles} de ${total}`;
+    this.elementos.contadorResultados.textContent = texto;
   },
 
   /* ---------------- Formulario ---------------- */

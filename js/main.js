@@ -9,6 +9,7 @@ const App = {
     Interfaz.inicializar();
     this.cargarDatosGuardados();
     this.registrarEventos();
+    this.refrescar();
   },
 
   cargarDatosGuardados() {
@@ -49,6 +50,13 @@ const App = {
     Interfaz.limpiarFormulario();
     Interfaz.enfocarPrimerCampo();
     Interfaz.notificar(`Proyecto "${resultado.proyecto.proyecto}" agregado.`, 'exito');
+    this.refrescar();
+  },
+
+  /** Vuelve a pintar la tabla con el estado actual. Se llama después de cada cambio. */
+  refrescar() {
+    const proyectos = Proyectos.listar();
+    Interfaz.renderTabla(proyectos, { total: proyectos.length });
   },
 
   /** Guarda la lista actual y avisa si el navegador no dejó hacerlo. */
