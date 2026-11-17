@@ -17,9 +17,11 @@ const App = {
 
   cargarDatosGuardados() {
     const { proyectos, error } = Almacenamiento.cargar();
-    Proyectos.inicializar(proyectos);
+    const descartados = Proyectos.inicializar(proyectos);
     if (error) {
       Interfaz.notificar(error, 'error');
+    } else if (descartados > 0) {
+      Interfaz.notificar(`Se ignoraron ${descartados} registro(s) guardados con datos inválidos.`, 'error');
     }
   },
 
@@ -37,6 +39,52 @@ const App = {
     document.getElementById('busqueda').addEventListener('input', () => this.refrescar());
     document.getElementById('filtro-estado').addEventListener('change', () => this.refrescar());
     document.getElementById('orden').addEventListener('change', () => this.refrescar());
+
+    document.getElementById('boton-ejemplos').addEventListener('click', () => this.cargarEjemplos());
+    document.getElementById('boton-borrar-todo').addEventListener('click', () => this.borrarTodo());
+  },
+
+  /** Si ya hay proyectos, pregunto antes para no mezclar datos reales con los de prueba sin querer. */
+  async cargarEjemplos() {
+    if (!Proyectos.estaVacia()) {
+      const confirmado = await Interfaz.confirmar({
+        titulo: 'Cargar datos de ejemplo',
+        mensaje: 'Ya tienes proyectos registrados. Los 5 ejemplos se agregarán junto a los que ya existen.',
+        textoConfirmar: 'Agregar ejemplos',
+        destructiva: false
+      });
+      if (!confirmado) {
+        return;
+      }
+    }
+
+    const cantidad = Proyectos.cargarEjemplos();
+    this.persistir();
+    this.refrescar();
+    Interfaz.notificar(`Se agregaron ${cantidad} proyectos de ejemplo.`, 'exito');
+  },
+
+  async borrarTodo() {
+    if (Proyectos.estaVacia()) {
+      Interfaz.notificar('No hay proyectos para borrar.', 'info');
+      return;
+    }
+
+    const { total } = Proyectos.resumen();
+    const confirmado = await Interfaz.confirmar({
+      titulo: 'Borrar todos los proyectos',
+      mensaje: 'Se eliminarán todos los proyectos guardados en este navegador. Esta acción no se puede deshacer.',
+      detalle: `${total} ${total === 1 ? 'proyecto' : 'proyectos'} en total`,
+      textoConfirmar: 'Borrar todo'
+    });
+    if (!confirmado) {
+      return;
+    }
+
+    Proyectos.borrarTodo();
+    this.persistir();
+    this.salirDeEdicion(); // también limpia el formulario si había algo en edición
+    Interfaz.notificar('Se borraron todos los proyectos.', 'exito');
   },
 
   manejarAccionTabla(evento) {

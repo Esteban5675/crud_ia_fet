@@ -17,9 +17,21 @@ const Proyectos = {
 
   lista: [],
 
-  /** Recibe lo que venga del almacenamiento y lo deja como lista de trabajo. */
+  /**
+   * Recibe lo que venga del almacenamiento y lo deja como lista de trabajo.
+   * Los registros que no pasan la validación se descartan, porque un valor
+   * que no es número, por ejemplo, dañaría el total del resumen.
+   * @returns {number} cuántos registros se descartaron
+   */
   inicializar(proyectos) {
-    this.lista = Array.isArray(proyectos) ? proyectos.map((p) => ({ ...p })) : [];
+    const recibidos = Array.isArray(proyectos) ? proyectos : [];
+    this.lista = recibidos.filter((p) => this.esRegistroValido(p)).map((p) => ({ ...p }));
+    return recibidos.length - this.lista.length;
+  },
+
+  esRegistroValido(proyecto) {
+    const datos = this.normalizar(proyecto);
+    return typeof proyecto.id === 'string' && Object.keys(this.validar(datos)).length === 0;
   },
 
   /** Copia de todos los proyectos, para guardar sin exponer la lista interna. */
@@ -242,5 +254,87 @@ const Proyectos = {
     const cantidadAntes = this.lista.length;
     this.lista = this.lista.filter((p) => p.id !== id);
     return this.lista.length < cantidadAntes;
+  },
+
+  borrarTodo() {
+    this.lista = [];
+  },
+
+  estaVacia() {
+    return this.lista.length === 0;
+  },
+
+  /**
+   * Agrega los proyectos de ejemplo pasando por crear(), así también
+   * reciben id, fechas ISO y validación como cualquier otro.
+   * @returns {number} cuántos se agregaron
+   */
+  cargarEjemplos() {
+    const creados = this.datosDeEjemplo().map((datos) => this.crear(datos));
+    return creados.filter((resultado) => resultado.ok).length;
+  },
+
+  /**
+   * Las fechas se calculan desde hoy para que los ejemplos siempre
+   * se vean actuales, sin importar cuándo se abra la app.
+   */
+  datosDeEjemplo() {
+    return [
+      {
+        cliente: 'Panadería La Espiga',
+        proyecto: 'Tienda en línea de pedidos',
+        tecnologia: 'WordPress + WooCommerce',
+        estado: 'En desarrollo',
+        valor: 3500000,
+        fechaEntrega: this.fechaDesdeHoy(18),
+        descripcion: 'Catálogo de productos, pedidos para recoger en tienda y pagos con PSE.'
+      },
+      {
+        cliente: 'Ferretería Hermanos Gómez',
+        proyecto: 'Sistema de inventario',
+        tecnologia: 'PHP + MySQL',
+        estado: 'Pendiente',
+        valor: 6800000,
+        fechaEntrega: this.fechaDesdeHoy(45),
+        descripcion: 'Control de existencias en dos sedes de Bucaramanga con alertas de stock bajo.'
+      },
+      {
+        cliente: 'Clínica Dental Sonrisa Paisa',
+        proyecto: 'Agenda de citas en línea',
+        tecnologia: 'JavaScript + Firebase',
+        estado: 'En revisión',
+        valor: 4200000,
+        fechaEntrega: this.fechaDesdeHoy(6),
+        descripcion: 'Reserva de citas por odontólogo y recordatorio por WhatsApp.'
+      },
+      {
+        cliente: 'Café Origen Huila',
+        proyecto: 'Landing page de marca',
+        tecnologia: 'HTML, CSS y JavaScript',
+        estado: 'Entregado',
+        valor: 1800000,
+        fechaEntrega: this.fechaDesdeHoy(-12),
+        descripcion: 'Página para presentar los cafés especiales y el formulario de distribuidores.'
+      },
+      {
+        cliente: 'Transportes Andinos S.A.S.',
+        proyecto: 'Panel de seguimiento de envíos',
+        tecnologia: 'React + Node.js',
+        estado: 'En desarrollo',
+        valor: 9500000,
+        fechaEntrega: this.fechaDesdeHoy(60),
+        descripcion: 'Tablero para ver el estado de cada envío entre Bogotá, Medellín y Cali.'
+      }
+    ];
+  },
+
+  /** Fecha local en formato AAAA-MM-DD sumando (o restando) días a hoy. */
+  fechaDesdeHoy(dias) {
+    const fecha = new Date();
+    fecha.setDate(fecha.getDate() + dias);
+    // Uso las partes locales y no toISOString(), que convierte a UTC y puede correr el día
+    const mes = String(fecha.getMonth() + 1).padStart(2, '0');
+    const dia = String(fecha.getDate()).padStart(2, '0');
+    return `${fecha.getFullYear()}-${mes}-${dia}`;
   }
 };

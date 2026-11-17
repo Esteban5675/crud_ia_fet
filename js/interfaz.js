@@ -330,7 +330,7 @@ const Interfaz = {
    * la persona pulsa el botón de confirmar. Cancelar o la tecla Escape dan false.
    * Así main.js puede usarlo con await, parecido a confirm() pero accesible y con estilo.
    */
-  confirmar({ titulo, mensaje, detalle = '', textoConfirmar = 'Eliminar' }) {
+  confirmar({ titulo, mensaje, detalle = '', textoConfirmar = 'Eliminar', destructiva = true }) {
     const { dialogo, dialogoTitulo, dialogoMensaje, dialogoDetalle, dialogoConfirmar, dialogoCancelar } = this.elementos;
     const elementoAnterior = document.activeElement;
 
@@ -338,6 +338,9 @@ const Interfaz = {
     dialogoMensaje.textContent = mensaje;
     dialogoDetalle.textContent = detalle;
     dialogoConfirmar.textContent = textoConfirmar;
+    // Rojo solo cuando de verdad se va a borrar algo
+    dialogoConfirmar.classList.toggle('boton--peligro', destructiva);
+    dialogoConfirmar.classList.toggle('boton--primario', !destructiva);
     dialogo.returnValue = ''; // si no se limpia, queda el valor de la vez anterior
 
     return new Promise((resolver) => {
