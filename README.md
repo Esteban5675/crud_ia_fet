@@ -124,20 +124,6 @@ Usé un asistente de IA (Claude Code) como apoyo para generar la base del proyec
 
 ### Prompt 3
 
-- **Texto del prompt (resumido pero fiel):** "Encárgate de la parte 2 de la entrega (repositorio de GitHub): que el README tenga nombre del proyecto, descripción breve, tecnologías utilizadas, instrucciones para ejecutar, capturas de pantalla y la lista de prompts con su explicación, y súbelo a https://github.com/Esteban5675/crud_ia_fet.git."
-- **Qué se pidió:** dejar el repositorio listo para entregar y publicarlo en GitHub.
-- **Para qué:** cumplir con los requisitos del repositorio de la entrega.
-- **Qué cambió en el código:** se tomaron las 5 capturas de `docs/capturas/` con la app corriendo (listado con datos de ejemplo, validación al crear, modo edición, diálogo de eliminación y vista móvil), se completó este registro de prompts, se agregó el enlace al repositorio y se hizo `push` a GitHub. El código de la app no cambió.
-
-### Prompt 4
-
-- **Texto del prompt (resumido pero fiel):** "Sí, elimina `promts.md` del repositorio."
-- **Qué se pidió:** quitar del repositorio el archivo `promts.md`, que era un borrador de notas.
-- **Para qué:** que la lista oficial de prompts esté en un solo lugar (este README) y el repositorio quede limpio.
-- **Qué cambió en el código:** se eliminó `promts.md` (commit "Eliminar promts.md (los prompts están en el README)") y se registró este prompt. El código de la app no cambió.
-
-### Prompt 5
-
 - **Texto del prompt (resumido pero fiel):** "Sí, arregla la tabla que corta el botón Eliminar."
 - **Qué se pidió:** corregir que en escritorio la última columna de la tabla (Editar / Eliminar) quedaba cortada y había que desplazarse hacia los lados para verla.
 - **Para qué:** que todas las acciones del CRUD se vean sin desplazamiento horizontal en cualquier tamaño de pantalla.
