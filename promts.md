@@ -1,2 +1,0 @@
-** el primer promt fue:
-
