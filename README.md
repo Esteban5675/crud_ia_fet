@@ -64,7 +64,7 @@ Formulario con cliente, proyecto, tecnología, estado, valor en COP, fecha de en
 
 ### Read (leer)
 
-Tabla con todos los proyectos: el estado se muestra como etiqueta de color, el valor en pesos colombianos sin decimales y la fecha de entrega sin el desfase de zona horaria. En el celular cada fila se convierte en una tarjeta. Si no hay proyectos, o si la búsqueda no encuentra nada, aparece un mensaje amigable. Incluye búsqueda en tiempo real, filtro por estado, orden por fecha o valor y tarjetas de resumen.
+Tabla con todos los proyectos: el estado se muestra como etiqueta de color, el valor en pesos colombianos sin decimales y la fecha de entrega sin el desfase de zona horaria. Cuando la tabla no tiene espacio suficiente (en el celular, o en escritorio con el formulario al lado en pantallas medianas) cada fila se convierte en una tarjeta; esto se decide con una *container query* según el ancho real de la tabla, así nunca se corta la columna de acciones. Si no hay proyectos, o si la búsqueda no encuentra nada, aparece un mensaje amigable. Incluye búsqueda en tiempo real, filtro por estado, orden por fecha o valor y tarjetas de resumen.
 
 - Lista filtrada y ordenada: `Proyectos.listar()`, `Proyectos.ordenar()` y `Proyectos.resumen()` en `js/proyectos.js`.
 - Pintar la tabla: `Interfaz.renderTabla()` y `Interfaz.crearFila()` en `js/interfaz.js`.
@@ -135,6 +135,13 @@ Usé un asistente de IA (Claude Code) como apoyo para generar la base del proyec
 - **Qué se pidió:** quitar del repositorio el archivo `promts.md`, que era un borrador de notas.
 - **Para qué:** que la lista oficial de prompts esté en un solo lugar (este README) y el repositorio quede limpio.
 - **Qué cambió en el código:** se eliminó `promts.md` (commit "Eliminar promts.md (los prompts están en el README)") y se registró este prompt. El código de la app no cambió.
+
+### Prompt 5
+
+- **Texto del prompt (resumido pero fiel):** "Sí, arregla la tabla que corta el botón Eliminar."
+- **Qué se pidió:** corregir que en escritorio la última columna de la tabla (Editar / Eliminar) quedaba cortada y había que desplazarse hacia los lados para verla.
+- **Para qué:** que todas las acciones del CRUD se vean sin desplazamiento horizontal en cualquier tamaño de pantalla.
+- **Qué cambió en el código:** en `css/estilos.css`, `.tabla-contenedor` ahora es un contenedor (`container-type: inline-size`) y el cambio de tabla a tarjetas pasó de una media query de pantalla (`max-width: 719px`) a una *container query* (`width < 46rem`). Cuando hay espacio para la tabla se reduce el relleno lateral, los botones de acción se apilan y la fecha puede partirse en dos líneas. En `js/interfaz.js`, la celda del proyecto recibe la clase `tabla__proyecto` para darle un ancho mínimo. Se midió que la tabla no desborda en anchos de 375 a 1600 px y se volvieron a tomar las capturas.
 
 <!--
 Plantilla para los siguientes prompts (copiar y llenar):
