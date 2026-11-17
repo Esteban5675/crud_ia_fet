@@ -33,10 +33,65 @@ const Proyectos = {
     return proyecto ? { ...proyecto } : null;
   },
 
-  /** Lista para mostrar en la tabla, por defecto con la entrega más próxima primero. */
-  listar() {
-    // Las fechas AAAA-MM-DD se pueden comparar como texto y quedan en orden cronológico
-    return this.obtenerTodos().sort((a, b) => a.fechaEntrega.localeCompare(b.fechaEntrega));
+  /**
+   * Lista para la tabla aplicando búsqueda, filtro y orden.
+   * @param {Object} criterios
+   * @param {string} criterios.texto busca en cliente, proyecto y tecnología
+   * @param {string} criterios.estado 'todos' o uno de ESTADOS
+   * @param {string} criterios.orden 'fecha-asc' | 'fecha-desc' | 'valor-asc' | 'valor-desc'
+   */
+  listar({ texto = '', estado = 'todos', orden = 'fecha-asc' } = {}) {
+    const busqueda = this.normalizarTexto(texto);
+    const filtrados = this.obtenerTodos()
+      .filter((p) => estado === 'todos' || p.estado === estado)
+      .filter((p) => this.coincideBusqueda(p, busqueda));
+    return this.ordenar(filtrados, orden);
+  },
+
+  /**
+   * Pasa a minúsculas y quita tildes, para que buscar "revision" encuentre "Revisión"
+   * o "bogota" encuentre "Bogotá". Nadie escribe tildes en un buscador.
+   */
+  normalizarTexto(texto) {
+    return String(texto)
+      .normalize('NFD')
+      .replace(/[̀-ͯ]/g, '')
+      .toLowerCase()
+      .trim();
+  },
+
+  coincideBusqueda(proyecto, busqueda) {
+    if (busqueda === '') {
+      return true;
+    }
+    const campos = [proyecto.cliente, proyecto.proyecto, proyecto.tecnologia];
+    return campos.some((campo) => this.normalizarTexto(campo).includes(busqueda));
+  },
+
+  ordenar(proyectos, orden) {
+    const comparadores = {
+      // Las fechas AAAA-MM-DD se pueden comparar como texto y quedan en orden cronológico
+      'fecha-asc': (a, b) => a.fechaEntrega.localeCompare(b.fechaEntrega),
+      'fecha-desc': (a, b) => b.fechaEntrega.localeCompare(a.fechaEntrega),
+      'valor-asc': (a, b) => a.valor - b.valor,
+      'valor-desc': (a, b) => b.valor - a.valor
+    };
+    const comparar = comparadores[orden] || comparadores['fecha-asc'];
+    return [...proyectos].sort(comparar);
+  },
+
+  /** Números para las tarjetas de arriba. Siempre sobre todos los proyectos, no sobre el filtro. */
+  resumen() {
+    return {
+      total: this.lista.length,
+      valorTotal: this.lista.reduce((suma, p) => suma + p.valor, 0),
+      enDesarrollo: this.contarPorEstado('En desarrollo'),
+      entregados: this.contarPorEstado('Entregado')
+    };
+  },
+
+  contarPorEstado(estado) {
+    return this.lista.filter((p) => p.estado === estado).length;
   },
 
   /**

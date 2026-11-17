@@ -51,8 +51,33 @@ const Interfaz = {
       dialogoDetalle: porId('dialogo-detalle'),
       dialogoConfirmar: porId('dialogo-confirmar'),
       dialogoCancelar: porId('dialogo-cancelar'),
+      busqueda: porId('busqueda'),
+      filtroEstado: porId('filtro-estado'),
+      orden: porId('orden'),
+      resumenTotal: porId('resumen-total'),
+      resumenValor: porId('resumen-valor'),
+      resumenDesarrollo: porId('resumen-desarrollo'),
+      resumenEntregados: porId('resumen-entregados'),
       notificaciones: porId('notificaciones')
     };
+  },
+
+  /** Lee la búsqueda, el filtro y el orden que eligió la persona. */
+  leerCriterios() {
+    return {
+      texto: this.elementos.busqueda.value,
+      estado: this.elementos.filtroEstado.value,
+      orden: this.elementos.orden.value
+    };
+  },
+
+  /* ---------------- Resumen ---------------- */
+
+  renderResumen({ total, valorTotal, enDesarrollo, entregados }) {
+    this.elementos.resumenTotal.textContent = total;
+    this.elementos.resumenValor.textContent = this.formatearValor(valorTotal);
+    this.elementos.resumenDesarrollo.textContent = enDesarrollo;
+    this.elementos.resumenEntregados.textContent = entregados;
   },
 
   /* ---------------- Formato ---------------- */

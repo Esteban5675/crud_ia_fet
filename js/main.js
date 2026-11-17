@@ -32,6 +32,11 @@ const App = {
     // Un solo listener en el tbody en vez de uno por botón: las filas se
     // vuelven a crear en cada render y así no hay que reasignar nada.
     document.getElementById('cuerpo-tabla').addEventListener('click', (evento) => this.manejarAccionTabla(evento));
+
+    // 'input' en la búsqueda filtra mientras se escribe; 'change' basta para los select
+    document.getElementById('busqueda').addEventListener('input', () => this.refrescar());
+    document.getElementById('filtro-estado').addEventListener('change', () => this.refrescar());
+    document.getElementById('orden').addEventListener('change', () => this.refrescar());
   },
 
   manejarAccionTabla(evento) {
@@ -152,10 +157,12 @@ const App = {
     Interfaz.notificar(`Cambios guardados en "${resultado.proyecto.proyecto}".`, 'exito');
   },
 
-  /** Vuelve a pintar la tabla con el estado actual. Se llama después de cada cambio. */
+  /** Vuelve a pintar tabla y resumen con el estado actual. Se llama después de cada cambio. */
   refrescar() {
-    const proyectos = Proyectos.listar();
-    Interfaz.renderTabla(proyectos, { idEnEdicion: this.idEnEdicion, total: proyectos.length });
+    const proyectos = Proyectos.listar(Interfaz.leerCriterios());
+    const resumen = Proyectos.resumen();
+    Interfaz.renderTabla(proyectos, { idEnEdicion: this.idEnEdicion, total: resumen.total });
+    Interfaz.renderResumen(resumen);
   },
 
   /** Guarda la lista actual y avisa si el navegador no dejó hacerlo. */
