@@ -177,5 +177,15 @@ const Proyectos = {
     };
     this.lista[indice] = actualizado;
     return { ok: true, proyecto: { ...actualizado } };
+  },
+
+  /**
+   * Elimina un proyecto por id.
+   * @returns {boolean} true si existía y se borró
+   */
+  eliminar(id) {
+    const cantidadAntes = this.lista.length;
+    this.lista = this.lista.filter((p) => p.id !== id);
+    return this.lista.length < cantidadAntes;
   }
 };

@@ -42,7 +42,36 @@ const App = {
     const { accion, id } = boton.dataset;
     if (accion === 'editar') {
       this.iniciarEdicion(id);
+    } else if (accion === 'eliminar') {
+      this.confirmarEliminacion(id);
     }
+  },
+
+  async confirmarEliminacion(id) {
+    const proyecto = Proyectos.obtener(id);
+    if (!proyecto) {
+      return;
+    }
+
+    const confirmado = await Interfaz.confirmar({
+      titulo: 'Eliminar proyecto',
+      mensaje: 'Esta acción no se puede deshacer. ¿Seguro que quieres eliminar este proyecto?',
+      detalle: `${proyecto.proyecto} — ${proyecto.cliente}`,
+      textoConfirmar: 'Eliminar'
+    });
+    if (!confirmado) {
+      return;
+    }
+
+    Proyectos.eliminar(id);
+    this.persistir();
+    // Si justo se estaba editando ese proyecto, el formulario no puede quedarse con sus datos
+    if (this.idEnEdicion === id) {
+      this.salirDeEdicion();
+    } else {
+      this.refrescar();
+    }
+    Interfaz.notificar(`Proyecto "${proyecto.proyecto}" eliminado.`, 'exito');
   },
 
   iniciarEdicion(id) {

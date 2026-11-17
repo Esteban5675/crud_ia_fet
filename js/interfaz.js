@@ -45,6 +45,12 @@ const Interfaz = {
       estadoVacio: porId('estado-vacio'),
       estadoVacioTitulo: porId('estado-vacio-titulo'),
       estadoVacioTexto: porId('estado-vacio-texto'),
+      dialogo: porId('dialogo-confirmacion'),
+      dialogoTitulo: porId('dialogo-titulo'),
+      dialogoMensaje: porId('dialogo-mensaje'),
+      dialogoDetalle: porId('dialogo-detalle'),
+      dialogoConfirmar: porId('dialogo-confirmar'),
+      dialogoCancelar: porId('dialogo-cancelar'),
       notificaciones: porId('notificaciones')
     };
   },
@@ -290,6 +296,48 @@ const Interfaz = {
     // El máximo sale del maxlength del HTML para no tener el 300 escrito en dos lugares
     const descripcion = this.elementos.formulario.elements.descripcion;
     this.elementos.contadorDescripcion.textContent = `${descripcion.value.length} / ${descripcion.maxLength}`;
+  },
+
+  /* ---------------- Diálogo de confirmación ---------------- */
+
+  /**
+   * Abre el <dialog> y devuelve una promesa que se resuelve en true solo si
+   * la persona pulsa el botón de confirmar. Cancelar o la tecla Escape dan false.
+   * Así main.js puede usarlo con await, parecido a confirm() pero accesible y con estilo.
+   */
+  confirmar({ titulo, mensaje, detalle = '', textoConfirmar = 'Eliminar' }) {
+    const { dialogo, dialogoTitulo, dialogoMensaje, dialogoDetalle, dialogoConfirmar, dialogoCancelar } = this.elementos;
+    const elementoAnterior = document.activeElement;
+
+    dialogoTitulo.textContent = titulo;
+    dialogoMensaje.textContent = mensaje;
+    dialogoDetalle.textContent = detalle;
+    dialogoConfirmar.textContent = textoConfirmar;
+    dialogo.returnValue = ''; // si no se limpia, queda el valor de la vez anterior
+
+    return new Promise((resolver) => {
+      dialogo.addEventListener('close', () => {
+        resolver(dialogo.returnValue === 'confirmar');
+        // Espero un turno para que quien llamó alcance a borrar la fila antes de devolver el foco
+        setTimeout(() => this.restaurarFoco(elementoAnterior), 0);
+      }, { once: true });
+
+      dialogo.showModal();
+      // Para acciones destructivas el foco arranca en Cancelar: un Enter por accidente no borra nada
+      dialogoCancelar.focus();
+    });
+  },
+
+  /**
+   * Devuelve el foco a donde estaba antes del diálogo. Si ese botón ya no existe
+   * (porque su fila se eliminó), lo llevo al título de la lista para no dejarlo perdido.
+   */
+  restaurarFoco(elemento) {
+    if (elemento && elemento.isConnected && elemento !== document.body) {
+      elemento.focus();
+    } else {
+      this.elementos.tituloListado.focus();
+    }
   },
 
   /* ---------------- Notificaciones ---------------- */
